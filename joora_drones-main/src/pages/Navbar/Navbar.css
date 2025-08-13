@@ -20,9 +20,12 @@
 }
 
 .logo__section img{
-  height: 30px;
-  padding: 1vw;
-  border-radius: 30%
+  height: 3.5rem;
+  padding: 0.8vw;
+  border-radius: 30%;
+  max-width: 100%;
+  display: block;
+  vertical-align: middle;
 }
 
 .logo__section a{

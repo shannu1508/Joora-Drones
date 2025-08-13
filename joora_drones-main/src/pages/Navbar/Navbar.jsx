@@ -19,7 +19,7 @@ const Navbar = () => {
     { name: "Home", to: "/#Home" },
     { name: "About", to: "/#About" },
     { name: "Services", to: "/#Services" },
-    { name: "ShpToKml", to: "/shptokml" }, // <-- changed here
+    { name: "ShpToKml", to: "/shptokml" },
     { name: "Contact", to: "/#Contact" }
   ].map((item, index) => (
     <Link
@@ -35,7 +35,8 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <div className="logo__section">
-        <img src={Logo} alt="Joora Drones Logo" />
+          <img src="https://www.jooradrones.com/assets/logo-bec58e99.webp" alt="JOORA DRONES Logo" />
+    
         <h3>
           <Link to={`/`}>Joora Drones</Link>
         </h3>

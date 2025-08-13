@@ -45,6 +45,7 @@ const validateZipContents = async (file) => {
   }
 };
 
+// Update FileDropzone component to remove heading
 const FileDropzone = ({ onFileSelect, status }) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef(null);
@@ -76,54 +77,54 @@ const FileDropzone = ({ onFileSelect, status }) => {
 
   const onButtonClick = () => inputRef.current?.click();
 
- return (
-  <div className="dropzone-container">
-    {/* Add heading section here */}
-    <div className="dropzone-heading">
-      <h2 className="dropzone-heading-title">SHP to KML File Converter For DJI Drones</h2>
-      <p className="dropzone-heading-subtitle"></p>
-      <div className="dropzone-divider"></div>
-    </div>
-
-    <div
-      className={`dropzone ${dragActive ? 'dropzone-active' : ''}`}
-      onDragEnter={handleDrag}
-      onDragLeave={handleDrag}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}
-      onClick={onButtonClick}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        className="hidden-input"
-        accept=".zip,application/zip"
-        onChange={handleChange}
-        disabled={status === 'PROCESSING'}
-      />
-      <div className="dropzone-content">
-        <div className={`dropzone-icon ${dragActive ? 'scale-up' : ''}`}>
-          <UploadIcon width={64} height={64} />
-        </div>
-        <p className="dropzone-title">Drag & Drop your .zip file here</p>
-        <p className="dropzone-subtitle">or</p>
-        <button type="button" className="browse-btn">Browse Files</button>
-        <div className="supported-note">
-          <p><span>Supported:</span> ZIP files should contain ESRI Shapefiles (.shp, .shx, .dbf)</p>
+  return (
+    <div className="main-card">
+      <div
+        className={`dropzone ${dragActive ? 'dropzone-active' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={onButtonClick}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden-input"
+          accept=".zip,application/zip"
+          onChange={handleChange}
+          disabled={status === 'PROCESSING'}
+        />
+        <div className="dropzone-content">
+          <div className={`dropzone-icon ${dragActive ? 'scale-up' : ''}`}>
+            <UploadIcon width={64} height={64} />
+          </div>
+          <p className="dropzone-title">Drag & Drop your .zip file here</p>
+          <p className="dropzone-subtitle">or</p>
+          <button type="button" className="browse-btn">Browse Files</button>
+          <div className="supported-note">
+            <span>Supported:</span> ZIP files should contain ESRI Shapefiles (.shp, .shx, .dbf)
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 };
+
+// ... (keep the rest of your file the same)
 
 const StatusDisplay = ({ status, fileName, error }) => {
   if (status === 'IDLE') return null;
   let icon, message, statusClass;
   switch (status) {
     case 'PROCESSING':
-      icon = <SpinnerIcon className="spin" width={64} height={64} />;
-      message = `Processing ${fileName}...`;
+      icon = <div className="dropzone-icon scale-up"><SpinnerIcon className="spin" width={64} height={64} /></div>;
+      message = (
+        <>
+          <span style={{ fontWeight: 600 }}>{`Processing ${fileName}...`}</span>
+          <div className="progress-bar"><div className="progress-fill"></div></div>
+        </>
+      );
       statusClass = 'status-processing';
       break;
     case 'SUCCESS':
@@ -143,7 +144,6 @@ const StatusDisplay = ({ status, fileName, error }) => {
     <div className={`status-display ${statusClass}`}>
       {icon}
       <p>{message}</p>
-      {status === 'PROCESSING' && <div className="progress-bar"><div className="progress-fill"></div></div>}
     </div>
   );
 };
@@ -281,12 +281,17 @@ export default function ShpToKml() {
   return (
     <div className="page-container">
       <div className="logo">
-        <a href="https://www.jooradrones.com/" target="_self" rel="noopener noreferrer">
+        <a href="/" target="_self" rel="noopener noreferrer">
           <img src="https://www.jooradrones.com/assets/logo-bec58e99.webp" alt="JOORA DRONES Logo" />
-          <span>Joora Drones</span>
+          <span><b>Joora Drones</b></span>
         </a>
       </div>
       <div className="content">
+        <div className="heading-section">
+          <h1 className="heading-title">
+            shp to kml file converter for DJI Drones
+          </h1>
+        </div>
         {status === 'IDLE' && <FileDropzone onFileSelect={handleFileSelect} status={status} />}
         {status !== 'IDLE' && status !== 'SUCCESS' && <StatusDisplay status={status} fileName={selectedFile?.name || ''} error={error} />}
         {status === 'SUCCESS' && kmlResult && <ResultPanel result={kmlResult} onReset={handleReset} />}
