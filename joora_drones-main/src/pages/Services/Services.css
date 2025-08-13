@@ -1,0 +1,108 @@
+#Services {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fffaf4;
+}
+
+#Services h1 {
+  font-size: 2rem;
+  margin-bottom: 3vw;
+}
+
+#Services .container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2vw;
+  align-content: center;
+  justify-items: center;
+}
+
+#Services .container .service {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 30vw;
+}
+
+#Services .container .service img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 1vw;
+  object-fit: cover;
+}
+
+#Services .container .service div {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 1vw;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+#Services .container .service h3 {
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  color: var(--white);
+  font-size: 2rem;
+}
+
+.service {
+  transition: all 0.3s ease;
+}
+.service:hover {
+  transform: scale(105%);
+}
+
+@media only screen and (max-width: 760px) {
+  #Services {
+    height: fit-content;
+    padding: 5vw 0;
+  }
+  #Services h1 {
+    margin: 10vw 0;
+    font-size: 1.5rem;
+  }
+  #Services .container {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 6vw;
+  }
+  #Services .container .service {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 80vw;
+  }
+  #Services .container .service h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media only screen and (min-width: 761px) and (max-width: 1000px) {
+  #Services {
+    height: fit-content;
+    padding: 5vw 0;
+  }
+  #Services h1 {
+    margin: 0 0 5vw 0;
+  }
+  #Services h1 {
+    font-size: 2rem;
+  }
+
+  #Services .container {
+    gap: 3vw;
+  }
+  #Services .container .service {
+    width: 40vw;
+  }
+  #Services .container .service h3 {
+    font-size: 1.8rem;
+  }
+}

@@ -1,0 +1,260 @@
+.main {
+  width: 100%;
+  height: 80vh;
+}
+.main .main_bg img,
+.main .main_bg .layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90vh;
+  z-index: -3;
+  object-fit: cover;
+}
+
+.main .main_bg .layer {
+  z-index: -2;
+  opacity: 0.8;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.main,
+.sub_service_modal {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  justify-items: center;
+}
+
+.left .content {
+  width: 30vw;
+}
+
+.left .content h1 {
+  position: relative;
+}
+
+.main .left .content {
+  color: var(--white);
+}
+.main .left .content h1 {
+  font-size: 2.5rem;
+}
+
+.main .left .content li ,
+.left .content li {
+  margin: 0.6vw 0;
+  list-style:square;
+}
+
+.main .left .content li {
+  list-style:none;
+  font-size: 1.1rem;
+}
+
+.main .left .btn {
+  margin: 3vw 0;
+}
+.main .left .btn h5 {
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: center;
+  width: fit-content;
+  padding: 1vw 2vw;
+  color: var(--white);
+  background-color: var(--black);
+  border-radius: 6vw;
+}
+
+.main .right a {
+  text-decoration: none;
+}
+.main .right h4 {
+  color: var(--black);
+  padding: 2vw 4vw;
+  margin: 1vw 0;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: rgba(250, 147, 29, 0.8);
+  list-style: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  border-left: 10px solid var(--orange);
+}
+
+.sub_service_modal {
+  padding: 5vw 10vw;
+}
+
+.threeD {
+  cursor: grab;
+  height: 100%;
+  width: 100%;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+model-viewer {
+  height: 100%;
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+.slider {
+  width: 40vw;
+  aspect-ratio: 16/9;
+}
+
+.controls {
+  margin-top: 1vw;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.controls button {
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0.5vw 1vw;
+  background-color: white;
+  border: 1px solid black;
+}
+
+button:nth-child(1) {
+  border-top-left-radius: 6vw;
+  border-bottom-left-radius: 6vw;
+  border-right: 0;
+}
+
+button:nth-child(3) {
+  border-top-right-radius: 6vw;
+  border-bottom-right-radius: 6vw;
+  border-left: 0;
+}
+
+iframe{
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 1vw;
+}
+
+.sub_service_modal .right img {
+  width: 40vw;
+  aspect-ratio: 16/9;
+  border-radius: 1vw;
+  object-fit: cover;
+}
+
+@media only screen and (max-width: 700px) {
+  .main,
+  .sub_service_modal {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .main {
+    height: 100vh;
+  }
+  .main .main_bg img,
+  .main .main_bg .layer {
+    height: 110vh;
+  }
+
+  .left .content {
+    width: 85vw;
+  }
+  .left .content h1 {
+    font-size: 1.3rem;
+  }
+  .left .content p {
+    font-size: 0.9rem;
+  }
+
+  .main .left .content li ,
+  .left .content li {
+    margin: 0.6vw 0;
+    list-style:square;
+  }
+  .main .left .content p {
+    font-size: 0.95rem;
+  }
+  .main .left .btn {
+    margin: 8vw 0;
+  }
+  .main .left .btn h5 {
+    font-size: 0.9rem;
+    padding: 3vw 6vw;
+  }
+
+  .main .right {
+    align-self: self-start;
+  }
+
+  .main .right h4 {
+    font-size: 1rem;
+    padding: 6vw 12vw;
+    margin: 2vw 0;
+  }
+
+  .sub_service_modal {
+    padding: 2vw 4vw;
+  }
+  .slider {
+    width: 90vw;
+    aspect-ratio: 16/9;
+  }
+
+  .controls {
+    margin: 3vw 0;
+  }
+  .controls button {
+    cursor: pointer;
+    font-size: 1.3rem;
+    padding: 2vw 5vw;
+  }
+
+  .sub_service_modal .right img {
+    width: 90vw;
+  }
+}
+
+@media only screen and (min-width: 701px) and (max-width: 1000px) {
+  .main {
+    margin-top: 20%;
+    align-items: start;
+  }
+  .main .main_bg img,
+  .main .main_bg .layer {
+    height: 100vh;
+  }
+  .left .content {
+    width: 40vw;
+  }
+  .left .content h1 {
+    font-size: 1.3rem;
+  }
+
+  .main .left .content li ,
+  .left .content li {
+    font-size: 0.9rem;
+  }
+
+
+  .main .left .btn {
+    margin: 3vw 0;
+  }
+  .main .left .btn h5 {
+    font-size: 0.8rem;
+    padding: 1vw 2vw;
+  }
+
+  .main .right h4 {
+    padding: 3vw 6vw;
+    margin: 2vw 0;
+  }
+
+  .sub_service_modal {
+    padding: 4vw 4vw;
+  }
+}

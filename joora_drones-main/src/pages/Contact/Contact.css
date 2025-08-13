@@ -1,0 +1,124 @@
+#Contact {
+  width: 100%;
+  height: fit-content;
+  background: #151414;
+}
+
+#Contact .footer {
+  padding: 3vw 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: start;
+  color: white;
+}
+
+.company__info {
+  width: 25vw;
+}
+.company__info h3 {
+  font-size: 1rem;
+  margin: 1.8vw 0 0.5vw 0;
+  font-weight: 600;
+}
+.company__info a{
+  text-decoration: none;
+  color: white;
+  font-weight: 400;
+  width: 25vw;
+  font-size: 0.9rem;
+}
+
+.services__section #title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.services__section .list a {
+  color: white;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+.services__section .list a:hover {
+  text-decoration: underline;
+}
+.services__section .list h4 {
+  font-weight: 400;
+  margin: 1vw 3vw 0 0;
+}
+
+.socialMedia #heading {
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.socialMedia .icons {
+  display: flex;
+  gap: 2vw;
+  font-size: 1.7rem;
+}
+
+.copyrights{
+  display: flex;
+  justify-content: center;
+  color: white;
+  padding: 2vw 0;
+  font-size: 0.8rem;
+}
+@media only screen and (min-width: 300px) and (max-width: 760px) {
+  #Contact .footer {
+    flex-direction: column;
+  }
+
+  .company__info {
+    width: 80vw;
+    padding-left: 10vw;
+    margin: 5vw 0;
+  }
+
+  .company__info h3 {
+    margin: 5vw 0 1vw 0;
+  }
+  .services__section {
+    position: relative;
+    padding-left: 10vw;
+    margin: 8vw 0;
+  }
+
+  .list h4 {
+    font-size: 0.9rem;
+    padding: 1vw 0;
+  }
+  .socialMedia {
+    width: 80vw;
+    padding-left: 10vw;
+  }
+
+  .socialMedia #heading {
+    position: relative;
+  }
+
+  .socialMedia .icons {
+    font-size: 1.5rem;
+    gap: 8vw;
+  }
+  
+.copyrights{
+  padding: 8vw 0;}
+}
+
+@media only screen and (min-width: 761px) and (max-width: 1000px) {
+  .services__section #title,
+  .socialMedia #heading {
+    font-size: 1.1rem;
+  }
+
+  .services__section .list h4 {
+    font-size: 0.9rem;
+  }
+  .socialMedia .icons {
+    display: flex;
+    gap: 1.5vw;
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,45 @@
+.Stats {
+  width: 100%;
+  height: fit-content;
+}
+
+.info {
+  display: flex;
+  justify-content: space-evenly;
+  position: relative;
+  background-color: white;
+  padding: 2vw 0;
+}
+
+.info img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.05;
+}
+.info div{
+  text-align: center;
+}
+.info div h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+.info div h2 {
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+@media only screen and (max-width: 760px) {
+  .info {
+    padding: 8vw 0;
+  }
+  .info div h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+  .info div h2 {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+}
