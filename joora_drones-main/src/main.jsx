@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import "./index.css";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 import ContactForm from "./pages/Contact/ContactForm.jsx";
+import ShpToKml from "./pages/ShptoKml/ShpToKml.jsx";
 
 const LazyMainLayout = React.lazy(() => import("./pages/Services/MainLayout/MainLayout.jsx"));
 
@@ -44,9 +45,9 @@ const router = createHashRouter([
   </Suspense>,
   },
   {
-    path: "/ShpToKml",
+    path: "/shptokml",
     element: <Suspense fallback={<div className="loader"></div>}>
-      <LazyMainLayout service={"ShpToKml"} />
+      <ShpToKml />
     </Suspense>
   },
 ]);

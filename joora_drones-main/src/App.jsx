@@ -1,6 +1,6 @@
 import "./App.css";
 import { Navbar, Home, About, Services, Clients, Stats, Contact, MainSlider } from "./pages";
-import ShpToKml from "./pages/ShpToKml/ShpToKml"; // adjust path as needed
+import ShpToKml from "./pages/ShptoKml/ShpToKml";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Routes, Route } from "react-router-dom";
@@ -36,7 +36,7 @@ function App() {
             </>
           }
         />
-        <Route path="/#/shptokml" element={<ShpToKml />} />
+        <Route path="/shptokml" element={<ShpToKml />} />
         {/* other routes */}
       </Routes>
     </>

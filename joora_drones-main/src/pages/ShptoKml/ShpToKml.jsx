@@ -76,7 +76,15 @@ const FileDropzone = ({ onFileSelect, status }) => {
 
   const onButtonClick = () => inputRef.current?.click();
 
-  return (
+ return (
+  <div className="dropzone-container">
+    {/* Add heading section here */}
+    <div className="dropzone-heading">
+      <h2 className="dropzone-heading-title">SHP to KML File Converter For DJI Drones</h2>
+      <p className="dropzone-heading-subtitle"></p>
+      <div className="dropzone-divider"></div>
+    </div>
+
     <div
       className={`dropzone ${dragActive ? 'dropzone-active' : ''}`}
       onDragEnter={handleDrag}
@@ -105,7 +113,8 @@ const FileDropzone = ({ onFileSelect, status }) => {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 const StatusDisplay = ({ status, fileName, error }) => {
@@ -158,7 +167,7 @@ const ValidationModal = ({ isOpen, message, onClose }) => {
   );
 };
 
-const API_URL =  "http://localhost:3001";
+const API_URL = process.env.NODE_ENV === 'production' ? '/api' : "http://localhost:3001";
 
 const ResultPanel = ({ result, onReset }) => {
   const handleCombinedDownload = () => {

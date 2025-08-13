@@ -11,19 +11,12 @@ import LandSurveying from "../LandSurveying";
 import Mapping from "../Mapping";
 import Inspection from "../Inspection";
 import Photography from "../Photography";
-import { useNavigate, useLocation } from "react-router-dom";
-import ShpToKml from "../../ShpToKml/ShpToKml"; // Adjust path if needed
+import { useNavigate } from "react-router-dom";
 
 import { HashLink as Link } from "react-router-hash-link";
 
 const MainLayout = ({ service }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Redirect to ShpToKml if path matches
-  if (location.pathname === "/#/ShpToKml" || location.hash === "/#/ShpToKml") {
-    return <ShpToKml />;
-  }
 
   let heading;
   let content;
