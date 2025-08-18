@@ -31,12 +31,13 @@ const conversionSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   originalFileName: { type: String, required: true },
   status: { type: String, enum: ['processing', 'completed', 'failed'], default: 'processing' },
-  kmlFileName: String,
-  kmlContent: String,
-  processedFiles: [String], // Array of processed file names
-  individualFiles: [{ // Store individual file contents
+  processedFiles: [{ // Store processed file info with coordinates
     fileName: String,
-    content: String
+    firstTwoCoordinates: [{ // Array of first two coordinate pairs
+      longitude: Number,
+      latitude: Number,
+      altitude: { type: Number, default: 0 }
+    }]
   }],
   error: String,
   createdAt: { type: Date, default: Date.now },
@@ -116,9 +117,7 @@ app.get('/api/status/:id', async (req, res) => {
       id: conversion.id,
       status: conversion.status,
       originalFileName: conversion.originalFileName,
-      kmlFileName: conversion.kmlFileName,
-      processedFiles: conversion.processedFiles || [], // Include processed files info
-      individualFiles: conversion.individualFiles || [], // Include individual files info
+      processedFiles: conversion.processedFiles || [], // Include processed files with coordinates
       error: conversion.error,
       createdAt: conversion.createdAt,
       completedAt: conversion.completedAt
@@ -130,7 +129,7 @@ app.get('/api/status/:id', async (req, res) => {
   }
 });
 
-app.get('/api/download/:id', async (req, res) => {
+app.get('/api/coordinates/:id', async (req, res) => {
   try {
     const conversion = await Conversion.findOne({ id: req.params.id });
     if (!conversion) {
@@ -141,18 +140,23 @@ app.get('/api/download/:id', async (req, res) => {
       return res.status(400).json({ error: 'Conversion not completed' });
     }
 
-    res.setHeader('Content-Type', 'application/vnd.google-earth.kml+xml');
-    res.setHeader('Content-Disposition', `attachment; filename="${conversion.kmlFileName}"`);
-    res.send(conversion.kmlContent);
+    // Return coordinate data as JSON
+    res.json({
+      id: conversion.id,
+      originalFileName: conversion.originalFileName,
+      processedFiles: conversion.processedFiles,
+      createdAt: conversion.createdAt,
+      completedAt: conversion.completedAt
+    });
 
   } catch (error) {
-    console.error('Download error:', error);
-    res.status(500).json({ error: 'Download failed' });
+    console.error('Coordinates fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch coordinates' });
   }
 });
 
-// New endpoint to download individual KML files
-app.get('/api/download/:id/:filename', async (req, res) => {
+// New endpoint to get coordinates for a specific file
+app.get('/api/coordinates/:id/:filename', async (req, res) => {
   try {
     const conversion = await Conversion.findOne({ id: req.params.id });
     if (!conversion) {
@@ -164,130 +168,70 @@ app.get('/api/download/:id/:filename', async (req, res) => {
     }
 
     const filename = req.params.filename;
-    const individualFile = conversion.individualFiles?.find(file => file.fileName === filename);
-    
-    if (!individualFile) {
+    const processedFile = conversion.processedFiles?.find(file => file.fileName === filename);
+
+    if (!processedFile) {
       return res.status(404).json({ error: 'File not found' });
     }
 
-    res.setHeader('Content-Type', 'application/vnd.google-earth.kml+xml');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(individualFile.content);
+    res.json({
+      fileName: processedFile.fileName,
+      firstTwoCoordinates: processedFile.firstTwoCoordinates
+    });
 
   } catch (error) {
-    console.error('Individual download error:', error);
-    res.status(500).json({ error: 'Download failed' });
+    console.error('Individual coordinates fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch coordinates' });
   }
 });
 
-// New endpoint to download all files as a ZIP
-app.get('/api/download-all/:id', async (req, res) => {
+// Function to extract first two coordinates from KML content
+function extractFirstTwoCoordinates(kmlContent) {
+  const coordinates = [];
+
   try {
-    const conversion = await Conversion.findOne({ id: req.params.id });
-    if (!conversion) {
-      return res.status(404).json({ error: 'Conversion not found' });
-    }
+    // Look for coordinates in different KML geometry types
+    const coordinatePatterns = [
+      /<coordinates>\s*([^<]+)\s*<\/coordinates>/g,
+      /<coord>\s*([^<]+)\s*<\/coord>/g
+    ];
 
-    if (conversion.status !== 'completed') {
-      return res.status(400).json({ error: 'Conversion not completed' });
-    }
+    for (const pattern of coordinatePatterns) {
+      let match;
+      while ((match = pattern.exec(kmlContent)) !== null && coordinates.length < 2) {
+        const coordText = match[1].trim();
 
-    // Create a new ZIP file
-    const zip = new AdmZip();
-    
-    // Add the combined KML file if it exists
-    if (conversion.kmlContent) {
-      zip.addFile(conversion.kmlFileName, Buffer.from(conversion.kmlContent, 'utf8'));
-    }
-    
-    // Add individual KML files if they exist
-    if (conversion.individualFiles && conversion.individualFiles.length > 0) {
-      conversion.individualFiles.forEach(file => {
-        zip.addFile(file.fileName, Buffer.from(file.content, 'utf8'));
-      });
-    }
+        // Parse coordinate string - KML format is "longitude,latitude,altitude"
+        const coordLines = coordText.split(/[\s\n\r]+/).filter(line => line.trim());
 
-    // Generate ZIP buffer
-    const zipBuffer = zip.toBuffer();
-    
-    // Set response headers
-    const zipFileName = `${conversion.originalFileName.replace('.zip', '')}_all_files.zip`;
-    res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', `attachment; filename="${zipFileName}"`);
-    res.setHeader('Content-Length', zipBuffer.length);
-    
-    // Send the ZIP file
-    res.send(zipBuffer);
+        for (const line of coordLines) {
+          if (coordinates.length >= 2) break;
 
-  } catch (error) {
-    console.error('Download all files error:', error);
-    res.status(500).json({ error: 'Download failed' });
-  }
-});
+          const parts = line.trim().split(',');
+          if (parts.length >= 2) {
+            const longitude = parseFloat(parts[0]);
+            const latitude = parseFloat(parts[1]);
+            const altitude = parts.length > 2 ? parseFloat(parts[2]) || 0 : 0;
 
-// Function to combine multiple KML files into one
-async function combineKmlFiles(outputDir, kmlFiles) {
-  let combinedKml = `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>Combined Shapefiles</name>
-    <description>Combined KML from multiple shapefiles</description>`;
-
-  for (const kmlFile of kmlFiles) {
-    const kmlFilePath = path.join(outputDir, kmlFile);
-    const kmlContent = await fs.readFile(kmlFilePath, 'utf8');
-    
-    console.log(`Processing KML file: ${kmlFile}`);
-    
-    // Try multiple approaches to extract Placemark elements
-    let placemarkElements = [];
-    
-    // Method 1: Direct Placemark extraction
-    const directPlacemarks = kmlContent.match(/<Placemark>[\s\S]*?<\/Placemark>/g);
-    if (directPlacemarks) {
-      placemarkElements = directPlacemarks;
-      console.log(`Found ${directPlacemarks.length} direct Placemark elements in ${kmlFile}`);
-    } else {
-      // Method 2: Extract from Document
-      const documentMatch = kmlContent.match(/<Document>[\s\S]*?<\/Document>/);
-      if (documentMatch) {
-        const documentContent = documentMatch[0];
-        const innerPlacemarks = documentContent.match(/<Placemark>[\s\S]*?<\/Placemark>/g);
-        if (innerPlacemarks) {
-          placemarkElements = innerPlacemarks;
-          console.log(`Found ${innerPlacemarks.length} Placemark elements in Document of ${kmlFile}`);
-        }
-      }
-      
-      // Method 3: If still no Placemarks, try to extract the entire content between <kml> tags
-      if (placemarkElements.length === 0) {
-        const kmlMatch = kmlContent.match(/<kml[^>]*>([\s\S]*?)<\/kml>/);
-        if (kmlMatch) {
-          const kmlContent = kmlMatch[1];
-          const allPlacemarks = kmlContent.match(/<Placemark>[\s\S]*?<\/Placemark>/g);
-          if (allPlacemarks) {
-            placemarkElements = allPlacemarks;
-            console.log(`Found ${allPlacemarks.length} Placemark elements in KML content of ${kmlFile}`);
+            if (!isNaN(longitude) && !isNaN(latitude)) {
+              coordinates.push({
+                longitude: longitude,
+                latitude: latitude,
+                altitude: altitude
+              });
+            }
           }
         }
       }
     }
-    
-    // Add the Placemark elements to the combined KML
-    if (placemarkElements.length > 0) {
-      combinedKml += '\n    ' + placemarkElements.join('\n    ');
-    } else {
-      console.log(`Warning: No Placemark elements found in ${kmlFile}`);
-    }
+  } catch (error) {
+    console.error('Error extracting coordinates from KML:', error);
   }
 
-  combinedKml += `
-  </Document>
-</kml>`;
-
-  console.log('Combined KML structure created');
-  return combinedKml;
+  return coordinates;
 }
+
+
 
 // Function to process shapefile
 async function processShapefile(filePath, conversionId, originalFileName) {
@@ -301,7 +245,6 @@ async function processShapefile(filePath, conversionId, originalFileName) {
 
     // Find shapefile in extracted directory
     const files = await fs.readdir(extractDir);
-    const shapefileDir = extractDir;
     
     // Check if there's a subdirectory with shapefiles
     const subdirs = files.filter(file => 
@@ -453,44 +396,38 @@ async function processShapefile(filePath, conversionId, originalFileName) {
       throw new Error('No KML files generated');
     }
 
-    // Handle multiple KML files
-    let kmlContent;
-    let kmlFileName;
-    let individualFiles = [];
-    
-    if (kmlFiles.length === 1) {
-      // Single KML file - read it directly
-      const kmlFilePath = path.join(outputDir, kmlFiles[0]);
-      kmlContent = await fs.readFile(kmlFilePath, 'utf8');
-      kmlFileName = kmlFiles[0];
-      individualFiles.push({ fileName: kmlFiles[0], content: kmlContent });
-      console.log(`Processing single file: ${kmlFileName}`);
-    } else {
-      // Multiple KML files - combine them into a single KML
-      console.log(`Combining ${kmlFiles.length} KML files into one`);
-      
-      // Store individual file contents
-      for (const kmlFile of kmlFiles) {
-        const kmlFilePath = path.join(outputDir, kmlFile);
-        const fileContent = await fs.readFile(kmlFilePath, 'utf8');
-        individualFiles.push({ fileName: kmlFile, content: fileContent });
+    // Process KML files and extract coordinates
+    let processedFilesData = [];
+
+    console.log(`Processing ${kmlFiles.length} KML files for coordinate extraction`);
+
+    for (const kmlFile of kmlFiles) {
+      const kmlFilePath = path.join(outputDir, kmlFile);
+      const fileContent = await fs.readFile(kmlFilePath, 'utf8');
+
+      // Extract first two coordinates from this KML file
+      const firstTwoCoordinates = extractFirstTwoCoordinates(fileContent);
+
+      processedFilesData.push({
+        fileName: kmlFile,
+        firstTwoCoordinates: firstTwoCoordinates
+      });
+
+      console.log(`Processed ${kmlFile}: extracted ${firstTwoCoordinates.length} coordinates`);
+      if (firstTwoCoordinates.length > 0) {
+        console.log(`First coordinate: ${JSON.stringify(firstTwoCoordinates[0])}`);
+        if (firstTwoCoordinates.length > 1) {
+          console.log(`Second coordinate: ${JSON.stringify(firstTwoCoordinates[1])}`);
+        }
       }
-      
-      const combinedKml = await combineKmlFiles(outputDir, kmlFiles);
-      kmlContent = combinedKml;
-      kmlFileName = `combined_${originalFileName.replace(/\.zip$/, '.kml')}`;
-      console.log(`Combined file created: ${kmlFileName}`);
     }
 
-    // Update conversion record
+    // Update conversion record with new schema
     await Conversion.findOneAndUpdate(
       { id: conversionId },
       {
         status: 'completed',
-        kmlFileName: kmlFileName,
-        kmlContent: kmlContent,
-        processedFiles: kmlFiles, // Store all processed file names
-        individualFiles: individualFiles, // Store individual file contents
+        processedFiles: processedFilesData, // Store file names with coordinates
         completedAt: new Date()
       }
     );
@@ -527,6 +464,25 @@ async function processShapefile(filePath, conversionId, originalFileName) {
     }
   }
 }
+
+// Test endpoint for coordinate extraction
+app.post('/api/test-coordinates', (req, res) => {
+  try {
+    const { kmlContent } = req.body;
+    if (!kmlContent) {
+      return res.status(400).json({ error: 'KML content is required' });
+    }
+
+    const coordinates = extractFirstTwoCoordinates(kmlContent);
+    res.json({
+      extractedCoordinates: coordinates,
+      count: coordinates.length
+    });
+  } catch (error) {
+    console.error('Test coordinates error:', error);
+    res.status(500).json({ error: 'Failed to extract coordinates' });
+  }
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

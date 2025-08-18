@@ -167,7 +167,7 @@ const ValidationModal = ({ isOpen, message, onClose }) => {
   );
 };
 
-const API_URL = process.env.NODE_ENV === 'production' ? '/api' : "http://localhost:3001";
+const API_URL = "http://localhost:3001";
 
 const ResultPanel = ({ result, onReset }) => {
   const handleCombinedDownload = () => {
