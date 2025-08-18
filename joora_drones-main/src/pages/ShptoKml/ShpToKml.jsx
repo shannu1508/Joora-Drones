@@ -308,7 +308,7 @@ export default function ShpToKml() {
       <div className="content">
         <div className="heading-section">
           <h1 className="heading-title">
-            shp to kml file converter for DJI Drones
+            shp to kml file converter for DJI Drones1
           </h1>
         </div>
         {status === 'IDLE' && <FileDropzone onFileSelect={handleFileSelect} status={status} />}
