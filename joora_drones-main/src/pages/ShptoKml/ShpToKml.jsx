@@ -143,7 +143,7 @@ const StatusDisplay = ({ status, fileName, error }) => {
   return (
     <div className={`status-display ${statusClass}`}>
       {icon}
-      <p>{message}</p>
+      <div>{message}</div>
     </div>
   );
 };
@@ -239,26 +239,45 @@ export default function ShpToKml() {
       const result = await response.json();
       setConversionId(result.id);
       const pollStatus = async () => {
-        const statusResponse = await fetch(`${API_URL}/api/status/${result.id}`);
-        if (!statusResponse.ok) throw new Error('Status check failed');
-        const statusData = await statusResponse.json();
-        if (statusData.status === 'completed') {
-          const downloadResponse = await fetch(`${API_URL}/api/download/${result.id}`);
-          if (!downloadResponse.ok) throw new Error('Download failed');
-          const kmlContent = await downloadResponse.text();
-          const kmlFileName = statusData.kmlFileName || file.name.replace(/\.zip$/, '.kml');
-          setKmlResult({
-            fileName: kmlFileName,
-            content: kmlContent,
-            processedFiles: statusData.processedFiles || [],
-            conversionId: result.id
-          });
-          setStatus('SUCCESS');
-        } else if (statusData.status === 'failed') {
-          setError(statusData.error || 'Conversion failed');
-          setStatus('ERROR');
-        } else {
-          setTimeout(pollStatus, 2000);
+        try {
+          console.log(`Checking status for conversion ID: ${result.id}`);
+          const statusResponse = await fetch(`${API_URL}/api/status/${result.id}`);
+          if (!statusResponse.ok) {
+            console.error('Status check failed:', statusResponse.status, statusResponse.statusText);
+            throw new Error('Status check failed');
+          }
+          const statusData = await statusResponse.json();
+          console.log('Status data:', statusData);
+
+          if (statusData.status === 'completed') {
+            console.log(`Attempting download for conversion ID: ${result.id}`);
+            const downloadResponse = await fetch(`${API_URL}/api/download/${result.id}`);
+            if (!downloadResponse.ok) {
+              console.error('Download failed:', downloadResponse.status, downloadResponse.statusText);
+              const errorText = await downloadResponse.text();
+              console.error('Download error response:', errorText);
+              throw new Error(`Download failed: ${downloadResponse.status} ${downloadResponse.statusText}`);
+            }
+            const kmlContent = await downloadResponse.text();
+            const kmlFileName = statusData.kmlFileName || file.name.replace(/\.zip$/, '.kml');
+            setKmlResult({
+              fileName: kmlFileName,
+              content: kmlContent,
+              processedFiles: statusData.processedFiles || [],
+              conversionId: result.id
+            });
+            setStatus('SUCCESS');
+          } else if (statusData.status === 'failed') {
+            console.error('Conversion failed:', statusData.error);
+            setError(statusData.error || 'Conversion failed');
+            setStatus('ERROR');
+          } else {
+            console.log(`Status is ${statusData.status}, polling again in 2 seconds...`);
+            setTimeout(pollStatus, 2000);
+          }
+        } catch (pollError) {
+          console.error('Poll status error:', pollError);
+          throw pollError;
         }
       };
       setTimeout(pollStatus, 1000);
