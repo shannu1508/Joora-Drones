@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public')); //joora drones
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://kishorkella3:kishorkella3@cluster0.slkwfon.mongodb.net/wanderlustt?retryWrites=true&w=majority&appName=Cluster0';
