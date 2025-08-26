@@ -167,7 +167,7 @@ const ValidationModal = ({ isOpen, message, onClose }) => {
   );
 };
 
-const API_URL = "https://joora-drones.onrender.com";
+const API_URL = "http://localhost:3001";
 
 const ResultPanel = ({ result, onReset }) => {
   const handleCombinedDownload = () => {
@@ -233,8 +233,14 @@ export default function ShpToKml() {
     setError(null);
     try {
       const formData = new FormData();
-      formData.append('shapefile', file);
-      const response = await fetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
+      formData.append("shapefile", file); // must match upload.single("shapefile")
+
+      const response = await fetch(`${API_URL}/api/upload`, {
+        method: "POST",
+        body: formData,
+        // 🚫 DO NOT set Content-Type manually (fetch will add correct multipart boundary)
+      });
+
       if (!response.ok) throw new Error(await response.text());
       const result = await response.json();
       setConversionId(result.id);
@@ -308,7 +314,7 @@ export default function ShpToKml() {
       <div className="content">
         <div className="heading-section">
           <h1 className="heading-title">
-            shp to kml file converter for DJI Drones1
+            shp to kml file converter for DJI Drones
           </h1>
         </div>
         {status === 'IDLE' && <FileDropzone onFileSelect={handleFileSelect} status={status} />}
